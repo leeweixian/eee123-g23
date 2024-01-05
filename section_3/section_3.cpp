@@ -1,10 +1,8 @@
-//welcome...
-
-
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <algorithm>
+#include <cmath>  // Include the cmath header for ceil function
 
 void getInputFromFile(const std::string& filePath, std::vector<int>& inputData) {
     std::ifstream inputFile(filePath);
@@ -18,6 +16,9 @@ void getInputFromFile(const std::string& filePath, std::vector<int>& inputData) 
     } else {
         std::cerr << "Error: Unable to open file '" << filePath << "'\n";
     }
+
+    // Print input data for debugging
+    std::cout << "Read " << inputData.size() << " values from file.\n";
 }
 
 void processTextData(std::vector<int>& data) {
@@ -25,17 +26,22 @@ void processTextData(std::vector<int>& data) {
     std::sort(data.begin(), data.end());
 }
 
-void displayMatrix(const std::vector<int>& data, int rows, int cols) {
-    int index = 0;
+void displayMatrix(const std::vector<int>& data, int rows, std::vector<int>::size_type cols) {
+    std::vector<int>::size_type index = 0;
     for (int i = 0; i < rows; ++i) {
-        for (int j = 0; j < cols; ++j) {
-            std::cout << data[index++] << "\t";
+        for (std::vector<int>::size_type j = 0; j < cols; ++j) {
+            if (index < data.size()) {
+                std::cout << data[index++] << "\t";
+            } else {
+                // Handle the case where we run out of elements in the vector
+                std::cout << "N/A\t";
+            }
         }
         std::cout << "\n";
     }
 }
 
-void outputData(const std::string& filePath, const std::vector<int>& dataMatrix, const std::vector<int>& dataArray) {
+void outputData(const std::string& filePath, const std::vector<int>& dataMatrix) {
     std::ofstream outputFile(filePath);
 
     if (outputFile.is_open()) {
@@ -47,7 +53,7 @@ void outputData(const std::string& filePath, const std::vector<int>& dataMatrix,
 
         // Output array form
         outputFile << "\n\nArray Form:\n";
-        for (int value : dataArray) {
+        for (int value : dataMatrix) {
             outputFile << value << " ";
         }
 
@@ -59,23 +65,25 @@ void outputData(const std::string& filePath, const std::vector<int>& dataMatrix,
 
 int main() {
     // Step 1: Get input from text file
-    std::string inputFilePath = "input.txt";  // Replace with your actual file path
+    std::string inputFilePath = "sorteddata.txt";  // Replace with the correct file name or path
     std::vector<int> inputData;
+
+    // Print file path for debugging
+    std::cout << "Attempting to read from file: " << inputFilePath << "\n";
+
     getInputFromFile(inputFilePath, inputData);
 
-    if (!inputData.empty()) {
-        // Step 2: Process text data
-        processTextData(inputData);
+    // Step 2: Process text data
+    processTextData(inputData);
 
-        // Step 3: Display data in matrix form
-        int rows = 2;  // Adjust the number of rows based on your requirement
-        int cols = inputData.size() / rows;
-        displayMatrix(inputData, rows, cols);
+    // Step 3: Display data in matrix form
+    std::vector<int>::size_type rows = 2;  // Adjust the number of rows based on your requirement
+    std::vector<int>::size_type cols = static_cast<std::vector<int>::size_type>(std::ceil(static_cast<double>(inputData.size()) / static_cast<double>(rows)));
+    displayMatrix(inputData, static_cast<int>(rows), cols);
 
-        // Step 4: Output data to a new text file
-        std::string outputFilePath = "output.txt";  // Replace with your desired output file path
-        outputData(outputFilePath, inputData, inputData);
-    }
+    // Step 4: Output data to a new text file
+    std::string outputFilePath = "output.txt";  // Replace with your desired output file path
+    outputData(outputFilePath, inputData);
 
     return 0;
 }
